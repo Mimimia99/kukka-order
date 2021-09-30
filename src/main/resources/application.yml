@@ -68,8 +68,8 @@ spring:
           destination: kukka
           contentType: application/json
 api:
-  payment:
-    url: http://payment:8080
+  url:
+    payment: http://payment:8080
 feign:
   hystrix:
     enabled: true
