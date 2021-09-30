@@ -35,61 +35,66 @@ phases:
       - kubectl config set-credentials admin --token="$KUBE_TOKEN"
       - kubectl config set-context default --cluster=k8s --user=admin
       - kubectl config use-context default
+      - echo $KUBE_URL
+      - echo $KUBE_TOKEN
+      - kubectl config current-context
       - |
           cat <<EOF | kubectl apply -f -
           apiVersion: v1
           kind: Service
           metadata:
-            name: $_PROJECT_NAME
+            name: order
+            namespace: user03
             labels:
-              app: $_PROJECT_NAME
+              app: order
           spec:
             ports:
               - port: 8080
                 targetPort: 8080
             selector:
-              app: $_PROJECT_NAME
+              app: order
           EOF
       - |
-          cat <<EOF | kubectl apply -f -
+          cat  <<EOF | kubectl apply -f -
           apiVersion: apps/v1
           kind: Deployment
           metadata:
-            name: $_PROJECT_NAME
+            name: order
+            namespace: user03
             labels:
-              app: $_PROJECT_NAME
+              app: order
           spec:
             replicas: 1
             selector:
               matchLabels:
-                app: $_PROJECT_NAME
+                app: order
             template:
               metadata:
                 labels:
-                  app: $_PROJECT_NAME
+                  app: order
               spec:
                 containers:
-                  - name: $_PROJECT_NAME
+                  - name: order
                     image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$_PROJECT_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION
                     ports:
-                      - containerPort: 8080 
+                      - containerPort: 8080
                     readinessProbe:
                       httpGet:
-                        path: /actuator/health
+                        path: '/orders'
                         port: 8080
-                      initialDelaySeconds: 10
+                      initialDelaySeconds: 20
                       timeoutSeconds: 2
                       periodSeconds: 5
                       failureThreshold: 10
                     livenessProbe:
                       httpGet:
-                        path: /actuator/health
+                        path: '/orders'
                         port: 8080
-                      initialDelaySeconds: 120
+                      initialDelaySeconds: 180
                       timeoutSeconds: 2
                       periodSeconds: 5
                       failureThreshold: 5
           EOF
-cache:
-  paths:
-    - '/root/.m2/**/*'
+#cache:
+#  paths:
+#    - '/root/.m2/**/*'
