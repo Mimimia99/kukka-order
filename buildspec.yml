@@ -42,7 +42,7 @@ phases:
           kind: Service
           metadata:
             name: order
-            namespace: user03
+            namespace: user0303
             labels:
               app: order
           spec:
@@ -58,7 +58,7 @@ phases:
           kind: Deployment
           metadata:
             name: order
-            namespace: user03
+            namespace: user0303
             labels:
               app: order
           spec:
