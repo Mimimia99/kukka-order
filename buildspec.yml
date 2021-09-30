@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    _PROJECT_NAME: "user0303-order"
+    _PROJECT_NAME: "user03-order"
 
 phases:
   commands:
@@ -92,4 +92,3 @@ phases:
 cache:
   paths:
     - '/root/.m2/**/*'
-#11121
