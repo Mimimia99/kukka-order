@@ -69,4 +69,4 @@ spring:
           contentType: application/json
 api:
   payment:
-    url: http://Payment:8080
+    url: http://payment:8080
