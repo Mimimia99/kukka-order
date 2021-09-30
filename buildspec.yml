@@ -2,10 +2,13 @@ version: 0.2
 
 env:
   variables:
-    _PROJECT_NAME: "user03-order"
+    _PROJECT_NAME: "user0303-order"
 
 phases:
   install:
+    runtime-versions:
+      java: openjdk8
+      docker: 18
     commands:
       - echo install kubectl
       - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
@@ -19,8 +22,7 @@ phases:
       - echo $AWS_DEFAULT_REGION
       - echo $CODEBUILD_RESOLVED_SOURCE_VERSION
       - echo start command
-      #- $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-      - docker login --username AWS -p $(aws ecr get-login-password --region $AWS_DEFAULT_REGION) $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/
+      - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
   build:
     commands:
       - echo Build started on `date`
@@ -41,59 +43,57 @@ phases:
           apiVersion: v1
           kind: Service
           metadata:
-            name: order
-            namespace: user03
+            name: $_PROJECT_NAME
             labels:
-              app: order
+              app: $_PROJECT_NAME
           spec:
             ports:
               - port: 8080
                 targetPort: 8080
             selector:
-              app: order
+              app: $_PROJECT_NAME
           EOF
       - |
           cat  <<EOF | kubectl apply -f -
           apiVersion: apps/v1
           kind: Deployment
           metadata:
-            name: order
-            namespace: user03
+            name: $_PROJECT_NAME
             labels:
-              app: order
+              app: $_PROJECT_NAME
           spec:
             replicas: 1
             selector:
               matchLabels:
-                app: order
+                app: $_PROJECT_NAME
             template:
               metadata:
                 labels:
-                  app: order
+                  app: $_PROJECT_NAME
               spec:
                 containers:
-                  - name: order
+                  - name: $_PROJECT_NAME
                     image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$_PROJECT_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION
                     ports:
                       - containerPort: 8080
                     readinessProbe:
                       httpGet:
-                        path: '/orders'
+                        path: /actuator/health
                         port: 8080
-                      initialDelaySeconds: 20
+                      initialDelaySeconds: 10
                       timeoutSeconds: 2
                       periodSeconds: 5
                       failureThreshold: 10
                     livenessProbe:
                       httpGet:
-                        path: '/orders'
+                        path: /actuator/health
                         port: 8080
-                      initialDelaySeconds: 180
+                      initialDelaySeconds: 120
                       timeoutSeconds: 2
                       periodSeconds: 5
                       failureThreshold: 5
           EOF
-
-#cache:
-#  paths:
-#    - '/root/.m2/**/*'
+cache:
+  paths:
+    - '/root/.m2/**/*'
+#11121
