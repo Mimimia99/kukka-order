@@ -68,5 +68,5 @@ spring:
           destination: kukka
           contentType: application/json
 api:
-  url:
-    paymentUrl: http://payment:8080
+  payment:
+    url: http://Payment:8080
