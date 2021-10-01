@@ -79,9 +79,9 @@ phases:
                       requests:
                         cpu: 200
                     args:
-	                  - /bin/sh
-	                  - -c
-	                  - touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 600
+		    - /bin/sh
+		    - -c
+		    - touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 600
                     livenessProbe:
                       httpGet:
                         path: /actuator/health
